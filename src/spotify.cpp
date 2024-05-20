@@ -1,6 +1,8 @@
 #include "utils.h"
 #include <string.h>
 
+int volume = -1;
+
 String client_id = "fa5ef2f1b8304d1199276aa056347f5b";
 String client_token = "";
 String auth_link = "";
@@ -30,18 +32,38 @@ void getToken(String ip) {
     Serial.println(client_token);
 }
 
+void getInitialData() {
+    HTTPClient http;
+
+    http.begin("https://api.spotify.com/v1/me/player");
+    http.addHeader("Authorization", "Bearer " + client_token);
+    int httpCode = http.GET();
+
+    Serial.print("Get player data request code: ");
+    Serial.println(httpCode);
+    
+    JSONVar player_json = JSON.parse(http.getString());
+    volume = player_json["device"]["volume_percent"];
+    playing = player_json["is_playing"];
+    shuffled = player_json["shuffle_state"];
+    Serial.println(volume);
+
+    http.end();
+}
+
 void configureAuthServer() {
     server.on("/", HTTP_ANY, [] (AsyncWebServerRequest *request) {
         request->redirect(auth_link);
     });
 
     server.on("/callback/", HTTP_ANY, [] (AsyncWebServerRequest *request) {
-        if (request->hasParam("access_token")) {
+        if (request->hasParam("access_token", false)) {
             client_token = request->getParam("access_token")->value();
             access_granted = true;
             request->send(200, "text/html", "Access granted\n");
+        } else {
+            request->send(400, "text/html", "Bad request\n");
         }
-        request->send(400, "text/html", "Bad request\n");
     });
 
     server.onNotFound([] (AsyncWebServerRequest *request) {
@@ -55,6 +77,8 @@ void spotifyAuthenticate(String ip) {
     server.begin();
     getToken(ip);
     server.end();
+
+    getInitialData();
 }
 
 void postPlayNext() {
@@ -113,10 +137,10 @@ void putResume() {
     http.end();
 }
 
-void putShuffle(bool state) {
+void putShuffle() {
     HTTPClient http;
 
-    String query = state ? "true" : "false";
+    String query = shuffled ? "true" : "false";
 
     http.begin("https://api.spotify.com/v1/me/player/shuffle?state=" + query);
     http.addHeader("Authorization", "Bearer " + client_token);
@@ -124,6 +148,22 @@ void putShuffle(bool state) {
     int httpCode = http.PUT("");
 
     Serial.print("Shuffle request code: ");
+    Serial.println(httpCode);
+
+    http.end();
+}
+
+void putSetVolume() {
+    HTTPClient http;
+
+    String query = String(volume);
+
+    http.begin("https://api.spotify.com/v1/me/player/volume?volume_percent=" + query);
+    http.addHeader("Authorization", "Bearer " + client_token);
+    http.addHeader("Content-Length", "0");
+    int httpCode = http.PUT("");
+
+    Serial.print("Set volume request code: ");
     Serial.println(httpCode);
 
     http.end();

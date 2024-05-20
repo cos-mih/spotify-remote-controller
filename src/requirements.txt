@@ -1,0 +1,1 @@
+bufSize = 500 in WebResponses.cpp din ESPAsyncWebServer src
