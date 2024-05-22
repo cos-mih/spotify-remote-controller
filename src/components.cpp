@@ -18,11 +18,13 @@ bool playing = true;
 
 bool encoder_rotated = false;
 
+bool timer_off = false;
+
 Adafruit_ST7789 display = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
 hw_timer_t *timer = NULL;
 
 void IRAM_ATTR timer_isr() {
-    Serial.println("hei");
+    timer_off = true;
 }
 
 bool debounce() {
@@ -113,7 +115,7 @@ void initSensor() {
 void initTimer() {
     timer = timerBegin(0, 80, true);
     timerAttachInterrupt(timer, timer_isr, true);
-    timerAlarmWrite(timer, 4000000, true);
+    timerAlarmWrite(timer, 1000000, true);
     timerAlarmEnable(timer); 
 }
 
@@ -142,4 +144,16 @@ void displayTrack(String track_name, String artist_name) {
     display.println(track_name);
     display.setTextSize(3);
     display.println(artist_name);
+}
+
+void displayProgress() {
+    display.setCursor(0, 200);
+    int m = current_progress / 60000;
+    int s = (current_progress % 60000) / 1000;
+    
+    String min = m >= 10 ? String(m) : "0" + String(m);
+    String sec = s >= 10 ? String(s) : "0" + String(s);
+
+    display.setTextColor(ST77XX_GREEN, ST77XX_BLACK);
+    display.println(min + ":" + sec);
 }

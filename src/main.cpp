@@ -1,5 +1,6 @@
 #include "utils.h"
 
+int timer_count = 0;
 
 void setup() {
     Serial.begin(115200);
@@ -55,5 +56,18 @@ void loop() {
     if (encoder_rotated) {
         encoder_rotated = false;
         putSetVolume();
+    }
+
+    if (timer_off) {
+        timer_off = false;
+        timer_count++;
+        if (playing) {
+            current_progress += 1000;
+        }
+        displayProgress();
+        if (timer_count == 4) {
+            getCurrentTrack();
+            timer_count = 0;
+        }
     }
 }
