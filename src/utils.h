@@ -44,16 +44,24 @@ extern bool playing;
 extern bool encoder_rotated;
 extern int volume;
 
-extern AsyncWebServer server;
+extern String network_login_index_html;
+extern String get_token_script_index;
+
 extern Adafruit_ST7789 display;
+extern hw_timer_t *timer;
+extern String localIP;
 
 void initDisplay();
 void initSensor();
 void initButtons();
+void initTimer();
 
-String WiFiConnect();
+void initGetTokenIndex();
 
-void spotifyAuthenticate(String ip);
+void WiFiConnect();
+
+void getCurrentTrack();
+void spotifyAuthenticate();
 void postPlayNext();
 void postPlayPrev();
 void putPause();
@@ -62,5 +70,7 @@ void putShuffle();
 void putSetVolume();
 
 void displayText(String, uint16_t, uint16_t, int);
+void displayTrack(String, String);
+void setupTrackDisplay();
 
 #endif

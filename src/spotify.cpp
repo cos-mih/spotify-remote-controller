@@ -1,6 +1,8 @@
 #include "utils.h"
 #include <string.h>
 
+AsyncWebServer auth_server(5001);
+
 int volume = -1;
 
 String client_id = "fa5ef2f1b8304d1199276aa056347f5b";
@@ -8,56 +10,51 @@ String client_token = "";
 String auth_link = "";
 bool access_granted = false;
 
-void getToken(String ip) {
+void getToken() {
     HTTPClient http;
 
-    String redirect = "http%3A%2F%2F" + ip + "%3A100%2Fcallback%2F";
+    String redirect = "http%3A%2F%2F" + localIP + "%3A5001%2Fget-token";
     String url = "https://accounts.spotify.com/authorize?response_type=token&redirect_uri=" + redirect 
                 + "&client_id=" + client_id 
                 + "&scope=user-read-playback-state+user-read-playback-position+user-modify-playback-state";
 
     http.begin(url);
     int httpCode = http.GET();
-
     auth_link = http.getLocation();
-    Serial.print("Get token request code: ");
-    Serial.println(httpCode);
-    Serial.println(auth_link);
-
     http.end();
 
     while(!access_granted) delay(500);
-
-    Serial.print("Access token: ");
-    Serial.println(client_token);
 }
 
-void getInitialData() {
+void getCurrentTrack() {
     HTTPClient http;
 
     http.begin("https://api.spotify.com/v1/me/player");
     http.addHeader("Authorization", "Bearer " + client_token);
     int httpCode = http.GET();
-
-    Serial.print("Get player data request code: ");
-    Serial.println(httpCode);
     
     JSONVar player_json = JSON.parse(http.getString());
     volume = player_json["device"]["volume_percent"];
     playing = player_json["is_playing"];
     shuffled = player_json["shuffle_state"];
-    Serial.println(volume);
+    String current_track_name = player_json["item"]["name"];
+    String artist_name = player_json["item"]["artists"][0]["name"];
+    displayTrack(current_track_name, artist_name);
 
     http.end();
 }
 
 void configureAuthServer() {
-    server.on("/", HTTP_ANY, [] (AsyncWebServerRequest *request) {
+    auth_server.on("/", HTTP_GET, [] (AsyncWebServerRequest *request) {
         request->redirect(auth_link);
     });
 
-    server.on("/callback/", HTTP_ANY, [] (AsyncWebServerRequest *request) {
-        if (request->hasParam("access_token", false)) {
+    auth_server.on("/get-token", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        request->send(200, "text/html", get_token_script_index);
+    });
+
+    auth_server.on("/callback", HTTP_ANY, [] (AsyncWebServerRequest *request) {
+        if (request->hasParam("access_token")) {
             client_token = request->getParam("access_token")->value();
             access_granted = true;
             request->send(200, "text/html", "Access granted\n");
@@ -66,19 +63,21 @@ void configureAuthServer() {
         }
     });
 
-    server.onNotFound([] (AsyncWebServerRequest *request) {
+    auth_server.onNotFound([] (AsyncWebServerRequest *request) {
         request->send(404, "text/html", "Not found");
     });
 }
 
-void spotifyAuthenticate(String ip) {
-    server.reset();
+void spotifyAuthenticate() {
     configureAuthServer();    
-    server.begin();
-    getToken(ip);
-    server.end();
+    auth_server.begin();
+    getToken();
+    auth_server.end();
 
-    getInitialData();
+    displayText("Welcome back!", ST77XX_BLACK, ST77XX_GREEN, 5);
+    delay(4000);
+    setupTrackDisplay();
+    getCurrentTrack();
 }
 
 void postPlayNext() {
@@ -88,10 +87,6 @@ void postPlayNext() {
     http.addHeader("Authorization", "Bearer " + client_token);
     http.addHeader("Content-Length", "0");
     int httpCode = http.POST("");
-
-    Serial.print("Skip next request code: ");
-    Serial.println(httpCode);
-
     http.end();
 }
 
@@ -102,10 +97,6 @@ void postPlayPrev() {
     http.addHeader("Authorization", "Bearer " + client_token);
     http.addHeader("Content-Length", "0");
     int httpCode = http.POST("");
-
-    Serial.print("Skip previous request code: ");
-    Serial.println(httpCode);
-
     http.end();
 }
 
@@ -116,10 +107,6 @@ void putPause() {
     http.addHeader("Authorization", "Bearer " + client_token);
     http.addHeader("Content-Length", "0");
     int httpCode = http.PUT("");
-
-    Serial.print("Pause request code: ");
-    Serial.println(httpCode);
-
     http.end();
 }
 
@@ -130,10 +117,6 @@ void putResume() {
     http.addHeader("Authorization", "Bearer " + client_token);
     http.addHeader("Content-Length", "0");
     int httpCode = http.PUT("");
-
-    Serial.print("Resume request code: ");
-    Serial.println(httpCode);
-
     http.end();
 }
 
@@ -146,10 +129,6 @@ void putShuffle() {
     http.addHeader("Authorization", "Bearer " + client_token);
     http.addHeader("Content-Length", "0");
     int httpCode = http.PUT("");
-
-    Serial.print("Shuffle request code: ");
-    Serial.println(httpCode);
-
     http.end();
 }
 
@@ -162,9 +141,5 @@ void putSetVolume() {
     http.addHeader("Authorization", "Bearer " + client_token);
     http.addHeader("Content-Length", "0");
     int httpCode = http.PUT("");
-
-    Serial.print("Set volume request code: ");
-    Serial.println(httpCode);
-
     http.end();
 }
