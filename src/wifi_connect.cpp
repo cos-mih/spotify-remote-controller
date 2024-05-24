@@ -33,7 +33,8 @@ void configureServer() {
 void WiFiConnect() {
     WiFi.mode(WIFI_AP);
     WiFi.softAP(config_ssid, config_password);
-    displayText(WiFi.softAPIP().toString() + "\nPort: 5000", ST77XX_MAGENTA, ST77XX_CYAN, 3);
+    String info = "ESP-Spotify-Controller\nESP-Password\n\nConnect to:\n" + WiFi.softAPIP().toString() + "\nPort: 5000";
+    displayText(info, ST77XX_MAGENTA, ST77XX_CYAN, 3);
 
     configureServer();
 

@@ -29,7 +29,7 @@ void IRAM_ATTR timer_isr() {
 
 bool debounce() {
     button_press_time = millis();
-    if (button_press_time - last_button_press_time > 1000) {
+    if (button_press_time - last_button_press_time > 500) {
         last_button_press_time = button_press_time;
         return true;
     }
@@ -139,7 +139,7 @@ void setupTrackDisplay() {
 
 void displayTrack(String track_name, String artist_name) {
     display.fillScreen(ST77XX_BLACK);
-    display.setCursor(0, 30);
+    display.setCursor(0, 20);
     display.setTextSize(4);
     display.println(track_name);
     display.setTextSize(3);
@@ -154,6 +154,11 @@ void displayProgress() {
     String min = m >= 10 ? String(m) : "0" + String(m);
     String sec = s >= 10 ? String(s) : "0" + String(s);
 
+    display.fillRect(0, 220, 240, 2, ST77XX_BLACK);
+    int progress = (current_progress * 240) / current_duration;
+    display.fillRect(0, 220, progress, 2, ST77XX_CYAN);
+
+    display.setTextSize(2);
     display.setTextColor(ST77XX_GREEN, ST77XX_BLACK);
     display.println(min + ":" + sec);
 }

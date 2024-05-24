@@ -25,13 +25,11 @@ void loop() {
     if (next_pressed) {
         next_pressed = false;
         postPlayNext();
-        getCurrentTrack();
     }
 
     if (prev_pressed) {
         prev_pressed = false;
         postPlayPrev();
-        getCurrentTrack();
     }
 
     if (vol_mod_pressed) {

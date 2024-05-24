@@ -53,6 +53,7 @@ extern hw_timer_t *timer;
 extern String localIP;
 extern String current_track;
 extern int current_progress;
+extern int current_duration;
 
 void initDisplay();
 void initSensor();

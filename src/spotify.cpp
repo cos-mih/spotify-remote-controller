@@ -4,6 +4,7 @@
 AsyncWebServer auth_server(5001);
 String current_track = "";
 int current_progress = 0; 
+int current_duration = 0;
 
 int volume = -1;
 
@@ -42,10 +43,12 @@ void getCurrentTrack() {
     String track_name = player_json["item"]["name"];
     String artist_name = player_json["item"]["artists"][0]["name"];
     int progress = player_json["progress_ms"];
+    int duration = player_json["item"]["duration_ms"];
     if (track_name != current_track) {
         displayTrack(track_name, artist_name);
         current_track = track_name;
         current_progress = progress;
+        current_duration = duration;
     } else if ((progress % 60000) / 1000 != (current_progress % 60000) / 1000) {
         current_progress = progress;
     }
