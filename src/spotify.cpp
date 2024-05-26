@@ -39,7 +39,7 @@ void getCurrentTrack() {
     JSONVar player_json = JSON.parse(http.getString());
     volume = player_json["device"]["volume_percent"];
     playing = player_json["is_playing"];
-    shuffled = player_json["shuffle_state"];
+    bool shuffled_new = player_json["shuffle_state"];
     String track_name = player_json["item"]["name"];
     String artist_name = player_json["item"]["artists"][0]["name"];
     int progress = player_json["progress_ms"];
@@ -51,6 +51,10 @@ void getCurrentTrack() {
         current_duration = duration;
     } else if ((progress % 60000) / 1000 != (current_progress % 60000) / 1000) {
         current_progress = progress;
+    }
+    if (shuffled_new != shuffled) {
+        shuffled = shuffled_new;
+        displayShuffleState();
     }
 
     http.end();

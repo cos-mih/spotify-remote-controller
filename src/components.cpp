@@ -162,3 +162,15 @@ void displayProgress() {
     display.setTextColor(ST77XX_GREEN, ST77XX_BLACK);
     display.println(min + ":" + sec);
 }
+
+void displayShuffleState() {
+    display.setCursor(180, 200);
+    display.setTextSize(2);
+    if (shuffled) {
+        display.print("SHUFF");
+    } else {
+        display.setTextColor(ST77XX_BLACK);
+        display.print("SHUFF");
+        display.setTextColor(ST77XX_GREEN);
+    }
+}

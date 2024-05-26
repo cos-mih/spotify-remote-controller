@@ -77,5 +77,6 @@ void displayText(String, uint16_t, uint16_t, int);
 void displayTrack(String, String);
 void setupTrackDisplay();
 void displayProgress();
+void displayShuffleState();
 
 #endif

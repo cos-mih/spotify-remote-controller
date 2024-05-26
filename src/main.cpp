@@ -40,6 +40,7 @@ void loop() {
     if (shuffle_pressed) {
         shuffle_pressed = false;
         putShuffle();
+        displayShuffleState();
     }
 
     if (play_pause_pressed) {
