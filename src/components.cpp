@@ -3,7 +3,9 @@
 unsigned long button_press_time = 0;  
 unsigned long last_button_press_time = 0;
 
-bool on_pressed = false;
+bool repeat_pressed = false;
+bool repeat_on = false;
+
 bool next_pressed = false;
 bool prev_pressed = false;
 
@@ -34,6 +36,13 @@ bool debounce() {
         return true;
     }
     return false;
+}
+
+void IRAM_ATTR repeat_isr() {
+    if (debounce()) {
+        repeat_pressed = true;
+        repeat_on = !repeat_on;
+    }
 }
 
 void IRAM_ATTR play_next_isr() {
@@ -100,6 +109,7 @@ void initRotaryEncoder() {
 }
 
 void initButtons() {
+    configureButton(REPEAT, repeat_isr);
     configureButton(PLAY_PREV, play_prev_isr);
     configureButton(PLAY_NEXT, play_next_isr);
     configureButton(VOL_MODE, vol_mod_isr);
@@ -173,4 +183,14 @@ void displayShuffleState() {
         display.print("SHUFF");
         display.setTextColor(ST77XX_GREEN);
     }
+}
+
+void displayRepeatState() {
+    display.setCursor(115, 200);
+    display.setTextSize(2);
+    if (repeat_on) {
+        display.fillCircle(115, 205, 5, ST77XX_ORANGE);
+    } else {
+        display.fillCircle(115, 205, 5, ST77XX_BLACK);
+    }   
 }

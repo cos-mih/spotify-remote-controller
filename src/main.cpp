@@ -22,6 +22,12 @@ void setup() {
 }
 
 void loop() {
+    if (repeat_pressed) {
+        repeat_pressed = false;
+        putRepeat();
+        displayRepeatState();
+    }
+
     if (next_pressed) {
         next_pressed = false;
         postPlayNext();

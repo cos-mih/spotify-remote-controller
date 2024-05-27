@@ -12,7 +12,7 @@
 
 #define SENSOR 36
 
-#define POWER 32
+#define REPEAT 32
 #define PLAY_NEXT 33
 #define PLAY_PREV 25
 #define VOL_MODE 26
@@ -28,7 +28,9 @@
 #define TFT_DC 4
 #define TFT_RST 2
 
-extern bool on_pressed;
+extern bool repeat_pressed;
+extern bool repeat_on;
+
 extern bool next_pressed;
 extern bool prev_pressed;
 
@@ -72,11 +74,13 @@ void putPause();
 void putResume();
 void putShuffle();
 void putSetVolume();
+void putRepeat();
 
 void displayText(String, uint16_t, uint16_t, int);
 void displayTrack(String, String);
 void setupTrackDisplay();
 void displayProgress();
 void displayShuffleState();
+void displayRepeatState();
 
 #endif

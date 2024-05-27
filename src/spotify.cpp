@@ -40,6 +40,7 @@ void getCurrentTrack() {
     volume = player_json["device"]["volume_percent"];
     playing = player_json["is_playing"];
     bool shuffled_new = player_json["shuffle_state"];
+    String repeat_mode = player_json["repeat_state"];
     String track_name = player_json["item"]["name"];
     String artist_name = player_json["item"]["artists"][0]["name"];
     int progress = player_json["progress_ms"];
@@ -55,6 +56,11 @@ void getCurrentTrack() {
     if (shuffled_new != shuffled) {
         shuffled = shuffled_new;
         displayShuffleState();
+    }
+    bool repeat = repeat_mode == "off" ? false : true;
+    if (repeat != repeat_on) {
+        repeat_on = repeat;
+        displayRepeatState();
     }
 
     http.end();
@@ -154,6 +160,18 @@ void putSetVolume() {
     String query = String(volume);
 
     http.begin("https://api.spotify.com/v1/me/player/volume?volume_percent=" + query);
+    http.addHeader("Authorization", "Bearer " + client_token);
+    http.addHeader("Content-Length", "0");
+    int httpCode = http.PUT("");
+    http.end();
+}
+
+void putRepeat() {
+    HTTPClient http;
+
+    String query = repeat_on ? "track" : "off";
+
+    http.begin("https://api.spotify.com/v1/me/player/repeat?state=" + query);
     http.addHeader("Authorization", "Bearer " + client_token);
     http.addHeader("Content-Length", "0");
     int httpCode = http.PUT("");

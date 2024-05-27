@@ -1,2 +1,2 @@
 - bufSize = 500 in WebResponses.cpp from ESPAsyncWebServer src
-- Spotify player already on
+- Spotify player already on when accessing auth link
