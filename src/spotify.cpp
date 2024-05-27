@@ -98,7 +98,6 @@ void spotifyAuthenticate() {
 
     displayText("Welcome back!", ST77XX_BLACK, ST77XX_GREEN, 5);
     delay(4000);
-    setupTrackDisplay();
     getCurrentTrack();
 }
 

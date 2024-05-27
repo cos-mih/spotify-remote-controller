@@ -118,7 +118,7 @@ void initButtons() {
 }
 
 void initSensor() {
-    analogReadResolution(16);
+    analogReadResolution(12);
     pinMode(SENSOR, INPUT);
 }
 
@@ -143,16 +143,14 @@ void displayText(String message, uint16_t bgColor, uint16_t txtColor, int txtSiz
     display.println(message);
 }
 
-void setupTrackDisplay() {
-    display.setTextColor(ST77XX_GREEN);
-}
-
 void displayTrack(String track_name, String artist_name) {
     display.fillScreen(ST77XX_BLACK);
     display.setCursor(0, 20);
     display.setTextSize(4);
+    display.setTextColor(ST77XX_GREEN);
     display.println(track_name);
     display.setTextSize(3);
+    display.setTextColor(ST77XX_WHITE);
     display.println(artist_name);
 }
 
@@ -177,20 +175,26 @@ void displayShuffleState() {
     display.setCursor(180, 200);
     display.setTextSize(2);
     if (shuffled) {
+        display.setTextColor(ST77XX_YELLOW);
         display.print("SHUFF");
     } else {
         display.setTextColor(ST77XX_BLACK);
         display.print("SHUFF");
-        display.setTextColor(ST77XX_GREEN);
     }
 }
 
 void displayRepeatState() {
-    display.setCursor(115, 200);
-    display.setTextSize(2);
     if (repeat_on) {
-        display.fillCircle(115, 205, 5, ST77XX_ORANGE);
+        display.fillCircle(110, 205, 5, ST77XX_ORANGE);
     } else {
-        display.fillCircle(115, 205, 5, ST77XX_BLACK);
+        display.fillCircle(110, 205, 5, ST77XX_BLACK);
     }   
+}
+
+void displayVolumeMode() {
+    if (auto_volume) {
+        display.fillCircle(125, 205, 5, ST77XX_GREEN);
+    } else {
+        display.fillCircle(125, 205, 5, ST77XX_BLACK);
+    }  
 }

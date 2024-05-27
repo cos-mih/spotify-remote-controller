@@ -47,6 +47,8 @@ extern bool encoder_rotated;
 extern int volume;
 extern bool timer_off;
 
+extern int last_set_volume;
+
 extern String network_login_index_html;
 extern String get_token_script_index;
 
@@ -78,9 +80,9 @@ void putRepeat();
 
 void displayText(String, uint16_t, uint16_t, int);
 void displayTrack(String, String);
-void setupTrackDisplay();
 void displayProgress();
 void displayShuffleState();
 void displayRepeatState();
+void displayVolumeMode();
 
 #endif
